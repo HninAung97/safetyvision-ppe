@@ -1,65 +1,51 @@
 # SafetyVision — PPE Compliance System
 
-## Team Members
-- Hnin Aung
-- May Pang Kue
+A computer vision proof of concept that detects Personal Protective Equipment (PPE) in images
+and reports whether the required safety gear is present. Built for ITAI 1378 (Computer Vision and AI).
 
-## Project Tier
-Tier 2 (Advanced): a YOLO11 detection model feeds a compliance-reporting component, so two parts work together to turn raw detections into a per-worker violations report.
-
-## Problem Statement
-On construction and manufacturing sites, workers must wear personal protective equipment (PPE) such as hard hats, safety vests, and glasses. Compliance is checked manually by a safety officer who cannot watch everyone at once, so missing gear often goes unnoticed until an injury, lost work time, or a regulatory fine occurs. Safety managers and the companies they work for need a faster, more consistent way to catch violations.
-
-## Solution Overview
-SafetyVision takes a photo (or camera frame) of a work area, detects each worker and their PPE, checks each worker against the required gear, and produces a simple violations report. This lets one safety officer effectively monitor a whole site and catch problems before they become injuries.
-
-## Technical Approach
-- CV Technique: Object Detection (plus a rule-based compliance-reporting component)
-- Model Architecture: Convolutional neural network (CNN)
-- Model: YOLO11
-- How we will use it: Transfer learning (fine-tune YOLO11 on PPE categories)
-- Framework: PyTorch with the Ultralytics library
-- Why this approach: YOLO11 is the current free, open-source, real-time detection standard, and transfer learning lets us teach it our PPE categories with a small dataset. The compliance component turns raw detections into the report a safety officer actually needs, which makes this a two-part Tier 2 system.
-
-## Dataset
-- Source: Public PPE datasets on Roboflow Universe, plus a small set of our own labeled photos
-- Size: Roughly 3,000 to 6,000 labeled images (free tier)
-- Labels: hard hat, safety vest, safety glasses, person (including "no-helmet" / "no-vest" negative cases)
-- Link: Roboflow Universe PPE datasets (public, free to download)
-
-## Success Metrics (what we will measure and expect)
-- Primary: We will measure mean Average Precision at IoU 0.5 (mAP@0.5) and expect at least 0.80 on our validation set.
-- Secondary: We will measure inference speed and expect under 1 second per image on free Colab hardware.
-
-## Milestone Plan (10-week summer term)
-| Phase | Goal | When |
-|---|---|---|
-| Blueprint | Plan approved, midterm submitted | Week 5 |
-| First Working Demo | Pretrained YOLO11 runs end to end on a few sample images | Week 6 |
-| Make It Yours | Fine-tune on PPE data; add compliance-report logic | Weeks 7-8 |
-| Improve & Measure | Test, fix, and measure against our success metrics | Week 9 |
-| Package & Present | Demo video, README, final slides | Week 10 |
-
-## Resources
-- Compute: Google Colab (free tier, T4 GPU)
-- Cost: $0 (free tier and open source only)
-
-## Risks and Mitigation
-| Risk | Probability | Plan B |
-|---|---|---|
-| PPE data is limited or imbalanced | Medium | Combine several Roboflow PPE datasets and use data augmentation (flips, brightness) to expand and balance the classes. |
-| Model misses small items such as glasses | Medium | Scope the core system to hard hats and vests first (larger, easier to detect), and add glasses only once the core works reliably. |
+**Author:** Hnin Aung  |  **Tier:** 2  |  **Course:** ITAI 1378
 
 ## Demo Video
-[Link goes here at the Final]
+[Paste your YouTube (Unlisted) or Google Drive link here]
 
-## AI Usage Log
-See docs/AI_usage_log.md
+## What It Does
+SafetyVision takes an image of a work area, uses a fine-tuned YOLO11 detector to find PPE items
+(hard hat, vest, and others), then a compliance component checks each image against the required
+gear and reports **COMPLIANT** or **VIOLATION**, listing anything missing.
 
-## Current Status
-- [x] Repository created
-- [ ] Proposal submitted
-- [ ] First working demo
-- [ ] System works on our data
-- [ ] Metrics measured
-- [ ] Final submitted
+## How It Works (as built)
+- **Technique:** object detection + a rule-based compliance component
+- **Model:** YOLO11 (nano), fine-tuned with transfer learning
+- **Framework:** PyTorch + Ultralytics
+- **Architecture:** convolutional neural network (CNN)
+- **Compliance rule:** required items are hard hat and vest; the system flags any that are missing
+
+## Data
+- **Source:** public PPE dataset on Roboflow Universe (CC BY 4.0)
+- **Classes:** Hard_hat, Vest, Gloves, Mask, Person, Safety_boots
+- **Splits:** train / validation / test (the test split is used for the honest accuracy check)
+
+## Results (measured on the unseen test split)
+| Metric | Blueprint target | Achieved |
+|---|---|---|
+| Detection quality (mAP@0.5) | >= 0.80 | **0.862** (target met) |
+| Speed per image | < 1 second | **~5 ms** (0.005 s) |
+| Compliance decision | flags missing PPE | working end to end |
+
+Measured on the unseen **test split**: mAP@0.5 = **0.862**, precision 0.792, recall 0.905, ~5 ms per image. Both Blueprint targets were exceeded.
+
+## What Changed From the Blueprint
+- Used a ready-made public Roboflow PPE dataset instead of collecting my own, to focus on the working system.
+- Scoped compliance to **per image** for the proof of concept; per-person association is the next step.
+- Kept YOLO11 nano for speed on free Colab; a larger model is an easy upgrade.
+
+## How to Run
+1. Open the notebook in Google Colab.
+2. Set the runtime to a T4 GPU (Runtime -> Change runtime type -> T4 GPU).
+3. Add your free Roboflow API key in the dataset cell.
+4. Run all cells. Training, evaluation, inference, and the compliance report run end to end.
+
+## Next Steps
+- Associate each PPE item with a specific person.
+- Run on live video with per-worker tracking and alerts.
+- Add more classes and a larger model for higher accuracy.
